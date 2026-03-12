@@ -61,11 +61,18 @@ slot_pattern = re.compile(
 def transform_slot(s):
     def repl(m):
         try:
+            # 解析 JSON
             obj = json.loads(m.group('msg').replace('\\"', '"'))
             qs = [x['question'] for x in obj.get('questionList', [])]
-            return f'【快捷回复卡片】,"cardId":"{m.group("cid")}","message":"{{{"\\".join(qs)}}}"'
-        except:
+            
+            # 先拼接 qs
+            joined_qs = "\\".join(qs)
+            
+            # 放入 f-string
+            return f'【快捷回复卡片】,"cardId":"{m.group("cid")}","message":"{joined_qs}"'
+        except Exception:
             return m.group(0)
+    
     return slot_pattern.sub(repl, s)
 
 # ==================================================
